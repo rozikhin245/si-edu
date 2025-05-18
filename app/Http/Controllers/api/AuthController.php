@@ -81,11 +81,10 @@ class AuthController extends Controller
     {
         // Menghapus token saat ini (yang sedang dipakai)
         $request->user()->currentAccessToken()->delete();
-    
+
         return response()->json([
             'status' => true,
             'message' => 'berhasil logout dan token dihapus',
         ]);
     }
-    
 }

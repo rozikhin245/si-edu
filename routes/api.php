@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\AuthController;
+use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\nilaiController;
 use App\Http\Controllers\Api\siswaController;
 use App\Http\Controllers\api\tugasController;
@@ -10,13 +11,12 @@ use App\Http\Controllers\Api\absensiController;
 use App\Http\Controllers\api\komonitasController;
 use App\Http\Controllers\Api\pengumumanController;
 use App\Http\Controllers\api\komentarTugasController;
+use App\Http\Controllers\api\ForgotPasswordController;
 use App\Http\Controllers\Api\AnggotaKomonitasController;
 use App\Http\Controllers\api\DiskusiKomonitasController;
 use App\Http\Controllers\Api\GrupMataPelajaranController;
 use App\Http\Controllers\api\anggotaGrupPelajaranController;
 use App\Http\Controllers\Api\DikusiGrupMataPelajaranController;
-
-
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -33,8 +33,21 @@ Route::post('registerUsers', [AuthController::class, 'regiterUsers']);
 Route::post('loginUsers', [AuthController::class, 'loginUsers']);
 Route::middleware('auth:sanctum')->post('logoutUsers', [AuthController::class, 'logoutUsers']);
 
+/**
+ * route untuk lupa password
+ * tapi route ini belum berfungsi,selengkapnya ada di route
+ */
+Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('reset-password', [ForgotPasswordController::class, 'reset']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    /**
+     * route untuk aktifitas akun users 
+     */
+    Route::get('profile', [UserController::class, 'profile']);
+    Route::put('updateProfile', [UserController::class, 'updateProfile']);
+    Route::put('change-password', [UserController::class, 'changePassword']);
+
     /**
      * route ini untuk crud data di komonitas
      */
