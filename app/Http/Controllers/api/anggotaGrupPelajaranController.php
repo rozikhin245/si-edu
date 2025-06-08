@@ -19,7 +19,7 @@ class anggotaGrupPelajaranController extends Controller
         ->where('grup_mata_pelajaran_id', $grup_id)
         ->get();
 
-    
+
         return response()->json([
             'status' => true,
             'message' => 'data anggota ditemukan',
@@ -94,9 +94,9 @@ class anggotaGrupPelajaranController extends Controller
     public function destroy($komunitas, $grup_id, $anggota)
     {
         $anggotaGrup = AnggotaGrupPelajaran::findOrFail($anggota);
-    
+
         $anggotaGrup->delete();
-    
+
         return response()->json([
             'status' => true,
             'message' => 'anggota berhasil dikeluarkan',

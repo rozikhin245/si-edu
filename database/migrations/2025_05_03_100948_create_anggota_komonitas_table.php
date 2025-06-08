@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('anggota_komonitas', function (Blueprint $table) {
             $table->id();
-            $table->enum('role', ['admin', 'guru', 'wali murid']);
+            $table->enum('role', ['admin', 'guru', 'wali-murid']);
             $table->timestamps();
             $table->unsignedBigInteger('komonitas_id');
             $table->unsignedBigInteger('users_id');

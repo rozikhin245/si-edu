@@ -14,7 +14,7 @@ class pengumumanController extends Controller
      */
     public function index()
     {
-        $pengumuman = Pengumuman::with('user')->orderBy('created_at', 'asc')->get();
+        $pengumuman = Pengumuman::with('user')->orderBy('created_at', 'desc')->get();
 
         // Mengirim data ke view
         return response()->json([
@@ -66,7 +66,7 @@ class pengumumanController extends Controller
     public function show(string $id)
     {
 
-        $grup = Pengumuman::findOrFail($id);
+        $grup = Pengumuman::with('user')->findOrFail($id);
         if ($grup) {
             return response()->json([
                 'status' => true,
@@ -77,7 +77,7 @@ class pengumumanController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Data tidak ditemukan',
-                
+
             ]);
         };
     }

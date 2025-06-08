@@ -12,12 +12,34 @@ class komonitasController extends Controller
     /**
      * Display a listing of the resource.
      */
+    // public function index()
+    // {
+    //     // Mengambil data komonitas dan mengurutkannya berdasarkan kolom 'nama_komonitas'
+    //     $komonitas = Komonitas::orderBy('nama_komonitas', 'asc')->get();
+
+    //     // Mengirim data ke view
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Data komonitas berhasil diambil',
+    //         'data' => $komonitas
+    //     ], 200);
+    // }
     public function index()
     {
-        // Mengambil data komonitas dan mengurutkannya berdasarkan kolom 'nama_komonitas'
-        $komonitas = Komonitas::orderBy('nama_komonitas', 'asc')->get();
+        $user = auth()->user();
 
-        // Mengirim data ke view
+        // Kalau admin, ambil semua komunitas
+        if ($user->role === 'admin') {
+            $komonitas = Komonitas::orderBy('created_at', 'desc')->get();
+        } else {
+            // Selain admin (guru, wali murid), ambil hanya yang dia ikuti
+            $komonitas = Komonitas::whereHas('anggotaKomonitas', function ($q) use ($user) {
+                $q->where('users_id', $user->id);
+            })
+                ->orderBy('nama_komonitas', 'asc')
+                ->get();
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Data komonitas berhasil diambil',

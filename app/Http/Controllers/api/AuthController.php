@@ -21,6 +21,7 @@ class AuthController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required',
+            'role' => 'required|in:admin,guru,wali-murid',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -35,11 +36,13 @@ class AuthController extends Controller
         $dataUser->name = $request->name;
         $dataUser->email = $request->email;
         $dataUser->password = Hash::make($request->password);
+        $dataUser->role = $request->role;
         $dataUser->save();
 
         return response()->json([
             'status' => true,
-            'messege' => 'berhasil menambahkan data baru',
+            'message' => 'berhasil menambahkan data baru',
+            'data' => $dataUser
         ], 200);
     }
 
@@ -63,7 +66,7 @@ class AuthController extends Controller
         if (!Auth::attempt($request->only(['email', 'password']))) {
             return response()->json([
                 'status' => false,
-                'messaage' => 'email dan password yang dimasukkan tidak sesuai'
+                'message' => 'email dan password yang dimasukkan tidak sesuai'
             ], 401);
         }
 

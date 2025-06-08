@@ -91,6 +91,6 @@ class DiskusiKomonitasController extends Controller
             'status' => true,
             'message' => 'diskusi berhasil dihapus',
             'data' => $diskusi
-        ]);  
+        ]);
     }
 }
