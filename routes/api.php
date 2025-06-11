@@ -21,14 +21,13 @@ use App\Http\Controllers\Api\DikusiGrupMataPelajaranController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware('auth:api');
 
-Route::get('/', function () {
-})->name('login');
+Route::get('/', function () {})->name('login');
 
 Route::post('registerUsers', [AuthController::class, 'regiterUsers']);
 Route::post('loginUsers', [AuthController::class, 'loginUsers']);
-Route::middleware('auth:sanctum')->post('logoutUsers', [AuthController::class, 'logoutUsers']);
+Route::middleware('auth:api')->post('logoutUsers', [AuthController::class, 'logoutUsers']);
 
 /**
  * route untuk lupa password
@@ -38,7 +37,7 @@ Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkE
 Route::post('reset-password', [ForgotPasswordController::class, 'reset']);
 
 // route untuk data yang bisa dilihat oleh semua jenis users
-Route::middleware('auth:sanctum', 'role:admin,guru,wali-murid')->group(function () {
+Route::middleware('auth:api', 'role:admin,guru,wali-murid')->group(function () {
     /**
      * route untuk aktifitas akun users
      */
@@ -98,7 +97,7 @@ Route::middleware('auth:sanctum', 'role:admin,guru,wali-murid')->group(function 
 
 
 // route ini hanya bisa diakses oleh admin dan guru
-Route::middleware('auth:sanctum', 'role:admin,guru')->group(function () {
+Route::middleware('auth:api', 'role:admin,guru')->group(function () {
 
     // fungsi untuk membuat, mengupdate, dan menghapus tugas
     Route::put('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}', [tugasController::class, 'update']);
@@ -116,7 +115,7 @@ Route::middleware('auth:sanctum', 'role:admin,guru')->group(function () {
 
 
 // route ini hanya bisa diakses oleh admin
-Route::middleware('auth:sanctum', 'role:admin')->group(function () {
+Route::middleware('auth:api', 'role:admin')->group(function () {
     // fungsi mengelola komonitas, show dan get bisa dilakukan oleh semua orang
     Route::post('komonitas', [komonitasController::class, 'store']);
     Route::put('komonitas/{komunitas}', [komonitasController::class, 'update']);
