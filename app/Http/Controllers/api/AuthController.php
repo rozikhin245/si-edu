@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 use function Pest\Laravel\json;
 
@@ -21,6 +23,7 @@ class AuthController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required',
+            'role' => 'required|in:admin,guru,wali-murid',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -35,57 +38,52 @@ class AuthController extends Controller
         $dataUser->name = $request->name;
         $dataUser->email = $request->email;
         $dataUser->password = Hash::make($request->password);
+        $dataUser->role = $request->role;
         $dataUser->save();
 
         return response()->json([
             'status' => true,
-            'messege' => 'berhasil menambahkan data baru',
+            'message' => 'berhasil menambahkan data baru',
+            'data' => $dataUser
         ], 200);
     }
 
 
     public function loginUsers(Request $request)
     {
-        $rules = [
-            'email' => 'required|email',
-            'password' => 'required',
-        ];
+        $credentials = $request->only('email', 'password');
 
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
+        if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json([
                 'status' => false,
-                'message' => 'proses login gagal',
-                'data' => $validator->errors(),
+                'message' => 'Email atau password salah'
             ], 401);
         }
 
-        if (!Auth::attempt($request->only(['email', 'password']))) {
-            return response()->json([
-                'status' => false,
-                'messaage' => 'email dan password yang dimasukkan tidak sesuai'
-            ], 401);
-        }
-
-        $dataUser = User::where('email', $request->email)->first();
+        $user = Auth::user();
 
         return response()->json([
             'status' => true,
-            'message' => 'proses login berhasil',
-            'token' => $dataUser->createToken('api-users')->plainTextToken,
-            'data' => $dataUser,
+            'message' => 'Login berhasil',
+            'token' => $token,
+            'data' => $user,
         ]);
     }
 
     public function logoutUsers(Request $request)
     {
-        // Menghapus token saat ini (yang sedang dipakai)
-        $request->user()->currentAccessToken()->delete();
-    
-        return response()->json([
-            'status' => true,
-            'message' => 'berhasil logout dan token dihapus',
-        ]);
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Logout berhasil, token dihapus',
+            ]);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Logout gagal',
+            ], 500);
+        }
     }
-    
 }

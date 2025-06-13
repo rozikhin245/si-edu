@@ -5,7 +5,9 @@ namespace App\Http\Controllers\api;
 use App\Models\nilai;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\AnggotaKomonitas;
 use App\Models\Nilai as ModelsNilai;
+use App\Models\Siswa;
 use Illuminate\Support\Facades\Validator;
 
 class nilaiController extends Controller
@@ -15,10 +17,10 @@ class nilaiController extends Controller
      */
     public function index($komunitas, $grup_id, $tugas)
     {
-        $nilai = Nilai::with('siswa', 'tugas', 'user' )
+        $nilai = Nilai::with('siswa', 'tugas')
             ->where('tugas_id', $tugas)
             ->get();
-    
+
         return response()->json([
             'status' => true,
             'message' => 'Data nilai berhasil ditemukan',
@@ -53,7 +55,7 @@ class nilaiController extends Controller
         $nilai->keterngan = $request->keterngan;
         $nilai->siswa_id = $request->siswa_id;
         $nilai->tugas_id = $request->tugas_id;
-        $nilai->users_id = $request->users_id;
+        // $nilai->users_id = $request->users_id;
 
         $nilai->save();
 
@@ -67,9 +69,15 @@ class nilaiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($komunitas, $grup_id, $tugasid, $nilaiid)
     {
-        //
+        $nilai = Nilai::findOrFail($nilaiid);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data ditemukan',
+            'data' => $nilai
+        ]);
     }
 
     /**
@@ -124,5 +132,23 @@ class nilaiController extends Controller
             'message' => 'nilai berhasil dihapus',
             'data' => $nilai,
         ]);
+    }
+
+    public function siswaByKomonitas($komonitas_id)
+    {
+        // Ambil semua user_id yang tergabung dalam komunitas tertentu
+        $userIds = AnggotaKomonitas::where('komonitas_id', $komonitas_id)
+            ->pluck('users_id');
+
+        // Ambil data siswa yang user_id-nya termasuk ke komunitas itu
+        $siswa = Siswa::with('user')
+            ->whereIn('users_id', $userIds)
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data siswa dalam komunitas ditemukan',
+            'data' => $siswa
+        ], 200);
     }
 }

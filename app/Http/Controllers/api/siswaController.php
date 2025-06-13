@@ -75,7 +75,19 @@ class siswaController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $siswa = Siswa::findOrFail($id);
+        if($siswa) {
+            return response()->json([
+                'status' => true,
+                'message' => 'grup ditemukan',
+                'data' => $siswa
+            ],200);
+        } else{
+            return response()->json([
+                'status' => true,
+                'message' => 'Data tidak ditemukan',
+            ]);
+        };
     }
 
     /**

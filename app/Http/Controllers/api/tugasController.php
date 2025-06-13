@@ -18,27 +18,25 @@ class tugasController extends Controller
             ->where('grup_matapelajaran_id', $grup_id)
             ->latest()
             ->get();
-    
+
         return response()->json([
             'status' => true,
             'message' => 'Data tugas berhasil ditemukan',
             'data' => $tugas,
         ], 200);
     }
-    
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $tugas = new Tugas();
-
         $rules = [
             'judul' => 'required|string',
             'deskripsi' => 'nullable|string',
             'deadline' => 'nullable|date',
-            'file' => 'nullable|string',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,7z,jpg,jpeg,png,webp,txt,csv|max:5120',
             'grup_matapelajaran_id' => 'required|exists:grup_matapelajaran,id',
             'users_id' => 'required|exists:users,id',
         ];
@@ -50,14 +48,23 @@ class tugasController extends Controller
                 'status' => false,
                 'message' => 'Gagal membuat tugas',
                 'data' => $validator->errors()
-            ]);
+            ], 400);
         }
+
+        $tugas = new Tugas();
         $tugas->judul = $request->judul;
         $tugas->deskripsi = $request->deskripsi;
         $tugas->deadline = $request->deadline;
-        $tugas->file = $request->file;
         $tugas->grup_matapelajaran_id = $request->grup_matapelajaran_id;
         $tugas->users_id = $request->users_id;
+
+        // Tangani file upload
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '-' . $file->getClientOriginalName();
+            $path = $file->storeAs('tugas', $filename, 'public'); // Simpan dengan nama asli
+            $tugas->file = $path; // Simpan path lengkap ke kolom file
+        }
 
         $tugas->save();
 
@@ -68,12 +75,13 @@ class tugasController extends Controller
         ]);
     }
 
+
     /**
      * Display the specified resource.
      */
     public function show($komunitas, $grup_id, $tugasid)
     {
-        $tugas = Tugas::findOrFail($tugasid);
+        $tugas = Tugas::with('grupMataPelajaran', 'user')->findOrFail($tugasid);
 
         return response()->json([
             'status' => true,
@@ -81,6 +89,7 @@ class tugasController extends Controller
             'data' => $tugas
         ], 200);
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -93,7 +102,7 @@ class tugasController extends Controller
             'judul' => 'required|string',
             'deskripsi' => 'nullable|string',
             'deadline' => 'nullable|date',
-            'file' => 'nullable|string',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,7z,jpg,jpeg,png,webp,txt,csv|max:5120',
             'grup_matapelajaran_id' => 'required|exists:grup_matapelajaran,id',
             'users_id' => 'required|exists:users,id',
         ];
@@ -110,9 +119,17 @@ class tugasController extends Controller
         $tugas->judul = $request->judul;
         $tugas->deskripsi = $request->deskripsi;
         $tugas->deadline = $request->deadline;
-        $tugas->file = $request->file;
         $tugas->grup_matapelajaran_id = $request->grup_matapelajaran_id;
         $tugas->users_id = $request->users_id;
+
+        // Tangani file upload
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '-' . $file->getClientOriginalName();
+            $path = $file->storeAs('tugas', $filename, 'public'); // Simpan dengan nama asli
+            $tugas->file = $path; // Simpan path lengkap ke kolom file
+        }
+
 
         $tugas->save();
 

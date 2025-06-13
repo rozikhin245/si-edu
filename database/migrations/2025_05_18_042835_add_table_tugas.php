@@ -16,13 +16,13 @@ return new class extends Migration
             $table->string('judul', 255);
             $table->text('deskripsi');
             $table->string('deadline', 255);
-            $table->string('file', 255);
+            $table->string('file', 255)->nullable();
             $table->timestamps();
             $table->unsignedBigInteger('grup_matapelajaran_id');
             $table->unsignedBigInteger('users_id');
 
             $table->foreign('grup_matapelajaran_id')->references('id')->on('grup_matapelajaran');
-            $table->foreign('users_id')->references('id')->on('users'); 
+            $table->foreign('users_id')->references('id')->on('users');
         });
     }
 

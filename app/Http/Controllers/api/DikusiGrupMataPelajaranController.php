@@ -18,14 +18,14 @@ class DikusiGrupMataPelajaranController extends Controller
         ->where('grup_mata_pelajaran_id', $grup_id)
         ->get();
 
-    
+
         return response()->json([
             'status' => true,
             'message' => 'Diskusi grup pelajaran ditemukan',
             'data' => $diskusiGrupPelajaran,
         ], 200);
     }
-    
+
 
     /**
      * Store a newly created resource in storage.
@@ -85,14 +85,14 @@ class DikusiGrupMataPelajaranController extends Controller
     public function destroy($komunitas, $grup_id, $diskusi)
     {
         $diskusiPelajaran = DiskusiPelajaran::findOrFail($diskusi);
-    
+
         $diskusiPelajaran->delete();
-    
+
         return response()->json([
             'status' => true,
             'message' => 'diskusi pelajaran berhasil dihapus',
             'data' => $diskusiPelajaran
         ]);
     }
-    
+
 }

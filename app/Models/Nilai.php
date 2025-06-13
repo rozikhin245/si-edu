@@ -16,7 +16,7 @@ class Nilai extends Model
         'keterngan',
         'siswa_id',
         'tugas_id',
-        'users_id',
+        // 'users_id',
     ];
 
     // Relasi ke Siswa
@@ -32,8 +32,8 @@ class Nilai extends Model
     }
 
     // Relasi ke User
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'users_id');
-    }
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class, 'users_id');
+    // }
 }
