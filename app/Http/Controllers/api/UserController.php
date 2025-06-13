@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -83,6 +84,19 @@ class UserController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Password berhasil diperbarui',
+        ]);
+    }
+
+    public function getAvailableWaliMurid()
+    {
+        $availableUsers = User::where('role', 'wali-murid')
+            ->whereDoesntHave('siswa')
+            ->get(['id', 'name', 'email']); // Pilih field yang diperlukan
+
+        return response()->json([
+            'status' => true,
+            'message' => 'diskusi pelajaran berhasil dihapus',
+            'data' => $availableUsers
         ]);
     }
 }

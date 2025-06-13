@@ -26,9 +26,8 @@ Route::get('/user', function (Request $request) {
 Route::get('/', function () {
 })->name('login');
 
-Route::post('registerUsers', [AuthController::class, 'regiterUsers']);
 Route::post('loginUsers', [AuthController::class, 'loginUsers']);
-Route::middleware('auth:sanctum')->post('logoutUsers', [AuthController::class, 'logoutUsers']);
+Route::middleware('auth:api')->post('logoutUsers', [AuthController::class, 'logoutUsers']);
 
 /**
  * route untuk lupa password
@@ -38,7 +37,7 @@ Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkE
 Route::post('reset-password', [ForgotPasswordController::class, 'reset']);
 
 // route untuk data yang bisa dilihat oleh semua jenis users
-Route::middleware('auth:sanctum', 'role:admin,guru,wali-murid')->group(function () {
+Route::middleware('auth:api', 'role:admin,guru,wali-murid')->group(function () {
     /**
      * route untuk aktifitas akun users
      */
@@ -78,6 +77,7 @@ Route::middleware('auth:sanctum', 'role:admin,guru,wali-murid')->group(function 
 
     // fungsi untuk menampilkan nilai
     Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/nilai', [nilaiController::class, 'index']);
+    Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/nilai/{nilaiid}', [nilaiController::class, 'show']);
 
     // fungsi untuk fitur komentar tugas
     Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/komentar', [komentarTugasController::class, 'index']);
@@ -98,7 +98,7 @@ Route::middleware('auth:sanctum', 'role:admin,guru,wali-murid')->group(function 
 
 
 // route ini hanya bisa diakses oleh admin dan guru
-Route::middleware('auth:sanctum', 'role:admin,guru')->group(function () {
+Route::middleware('auth:api', 'role:admin,guru')->group(function () {
 
     // fungsi untuk membuat, mengupdate, dan menghapus tugas
     Route::put('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}', [tugasController::class, 'update']);
@@ -112,11 +112,23 @@ Route::middleware('auth:sanctum', 'role:admin,guru')->group(function () {
 
     // fungsi untuk membuat, mengupdate, dan menghapus absensi
     Route::Resource('absensi', absensiController::class);
+
+    // fungsi untuk menampilkan data wali murid yang belum tersambung dengan siswa
+    Route::get('/available-wali-murid', [UserController::class, 'getAvailableWaliMurid']);
+
+    // mengambil daftar siswa yang userIDNYA terdaftar di komonitas
+    Route::get('/siswa/by-komonitas/{komonitas_id}', [nilaiController::class, 'siswaByKomonitas']);
+
+    Route::get('pengumuman', [pengumumanController::class, 'index']);
+    Route::get('pengumuman/{id}', [pengumumanController::class, 'show']);
+
+    Route::get('pengumuman', [pengumumanController::class, 'index']);
+    Route::get('pengumuman/{id}', [pengumumanController::class, 'show']);
 });
 
 
 // route ini hanya bisa diakses oleh admin
-Route::middleware('auth:sanctum', 'role:admin')->group(function () {
+Route::middleware('auth:api', 'role:admin')->group(function () {
     // fungsi mengelola komonitas, show dan get bisa dilakukan oleh semua orang
     Route::post('komonitas', [komonitasController::class, 'store']);
     Route::put('komonitas/{komunitas}', [komonitasController::class, 'update']);
@@ -136,11 +148,16 @@ Route::middleware('auth:sanctum', 'role:admin')->group(function () {
     Route::delete('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/anggotagrup/{anggota}', [anggotaGrupPelajaranController::class, 'destroy']);
 
     // fungsi untuk mengelola pengumuman sekolah
-    Route::Resource('pengumuman', pengumumanController::class);
-
-
+    Route::post('pengumuman', [pengumumanController::class, 'store']);
+    Route::put('pengumuman/{id}', [pengumumanController::class, 'update']);
+    Route::delete('pengumuman/{id}', [pengumumanController::class, 'destroy']);
+    
+    // fungsi untuk mengelola siswa
     Route::Resource('siswa', siswaController::class);
 
+    // fungsi untuk menampilkan semua user
     Route::get('allUsers', [allUser::class, 'index']);
     Route::delete('deleteUser/{user}', [allUser::class, 'destroy']);
+
+    Route::post('registerUsers', [AuthController::class, 'regiterUsers']);
 });
