@@ -18,6 +18,7 @@ use App\Http\Controllers\api\DiskusiKomonitasController;
 use App\Http\Controllers\Api\GrupMataPelajaranController;
 use App\Http\Controllers\api\anggotaGrupPelajaranController;
 use App\Http\Controllers\Api\DikusiGrupMataPelajaranController;
+use App\Http\Controllers\Api\TanggalAbsensiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -93,6 +94,9 @@ Route::middleware('auth:api', 'role:admin,guru,wali-murid')->group(function () {
 
     // fungsi untuk menampilkan absensi
     Route::get('absensi', [absensiController::class, 'index']);
+
+    Route::get('tanggal-absensi', [TanggalAbsensiController::class, 'index']);
+    Route::get('tanggal-absensi/{id}', [TanggalAbsensiController::class, 'show']);
 });
 
 
@@ -111,6 +115,10 @@ Route::middleware('auth:api', 'role:admin,guru')->group(function () {
 
     // fungsi untuk membuat, mengupdate, dan menghapus absensi
     Route::Resource('absensi', absensiController::class);
+
+    Route::post('tanggal-absensi', [TanggalAbsensiController::class, 'store']);
+    Route::put('tanggal-absensi/{id}', [TanggalAbsensiController::class, 'update']);
+    Route::delete('tanggal-absensi/{id}', [TanggalAbsensiController::class, 'destroy']);
 });
 
 

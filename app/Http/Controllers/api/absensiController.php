@@ -7,32 +7,24 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class absensiController extends Controller
+class AbsensiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $absensi = Absensi::with(['siswa'])
-            ->get();
+        $absensi = Absensi::with(['siswa', 'tanggal.komunitas'])->get();
 
         return response()->json([
             'status' => true,
-            'message' => 'data absensi ditemukan',
+            'message' => 'Data absensi ditemukan',
             'data' => $absensi
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
-        $absensi  = new Absensi();
-
         $rules = [
-            'tanggal' => 'required|date',
+            'tanggal_id' => 'required|exists:tanggal_absensi,id',
             'status' => 'required|in:hadir,izin,sakit,alpa',
             'keterangan' => 'required|string',
             'siswa_id' => 'required|exists:siswa,id',
@@ -43,49 +35,38 @@ class absensiController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal membuat data siswa',
+                'message' => 'Validasi gagal',
                 'data' => $validator->errors()
             ], 400);
         }
 
-        $absensi->tanggal = $request->tanggal;
-        $absensi->status = $request->status;
-        $absensi->keterangan = $request->keterangan;
-        $absensi->siswa_id = $request->siswa_id;
-
-        $absensi->save();
+        $absensi = Absensi::create([
+            'status' => $request->status,
+            'keterangan' => $request->keterangan,
+            'siswa_id' => $request->siswa_id,
+            'tanggal_id' => $request->tanggal_id,
+        ]);
 
         return response()->json([
             'status' => true,
-            'message' => 'absensi berhasil dibuat',
-            'data' => $absensi
+            'message' => 'Absensi berhasil dibuat',
+            'data' => $absensi->load('siswa', 'tanggal.komunitas')
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        $absensi  = Absensi::find($id);
+        $absensi = Absensi::find($id);
 
-        if(empty($absensi )) {
+        if (!$absensi) {
             return response()->json([
                 'status' => false,
-                'message' => 'absensi tidak ditemukan',
-            ]);
+                'message' => 'Absensi tidak ditemukan',
+            ], 404);
         }
 
         $rules = [
-            'tanggal' => 'required|date',
+            'tanggal_id' => 'required|exists:tanggal_absensi,id',
             'status' => 'required|in:hadir,izin,sakit,alpa',
             'keterangan' => 'required|string',
             'siswa_id' => 'required|exists:siswa,id',
@@ -96,45 +77,41 @@ class absensiController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal membuat absensi',
+                'message' => 'Validasi gagal',
                 'data' => $validator->errors()
             ], 400);
         }
 
-        $absensi->tanggal = $request->tanggal;
-        $absensi->status = $request->status;
-        $absensi->keterangan = $request->keterangan;
-        $absensi->siswa_id = $request->siswa_id;
-
-        $absensi->save();
+        $absensi->update([
+            'status' => $request->status,
+            'keterangan' => $request->keterangan,
+            'siswa_id' => $request->siswa_id,
+            'tanggal_id' => $request->tanggal_id,
+        ]);
 
         return response()->json([
             'status' => true,
-            'message' => 'absensi berhasil diupdate',
-            'data' => $absensi
-        ], 201);
+            'message' => 'Absensi berhasil diupdate',
+            'data' => $absensi->load('siswa', 'tanggal.komunitas')
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $absensi  = Absensi::find($id);
+        $absensi = Absensi::find($id);
 
-        if(empty($absensi )) {
+        if (!$absensi) {
             return response()->json([
                 'status' => false,
-                'message' => 'absensi tidak ditemukan',
-            ]);
+                'message' => 'Absensi tidak ditemukan',
+            ], 404);
         }
 
         $absensi->delete();
 
         return response()->json([
             'status' => true,
-            'message' => 'absensi berhasil dihapus',
-            'data' => $absensi
-        ], 201);
+            'message' => 'Absensi berhasil dihapus',
+        ], 200);
     }
 }

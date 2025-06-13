@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('absensi', function (Blueprint $table) {
             $table->id();
-            $table->date('tanggal');
-            $table->enum('status', ['hadir','sakit', 'izin', 'alpa']);
-            $table->string('keterangan', 255);
-            $table->timestamps();
             $table->unsignedBigInteger('siswa_id');
-
-            $table->foreign('siswa_id')->references('id')->on('siswa');
+            $table->unsignedBigInteger('tanggal_id');
+            $table->enum('status', ['hadir', 'sakit', 'izin', 'alpa']);
+            $table->string('keterangan', 255)->nullable();
+            $table->timestamps();
+            $table->foreign('siswa_id')->references('id')->on('siswa')->onDelete('cascade');
+            $table->foreign('tanggal_id')->references('id')->on('tanggal_absensi')->onDelete('cascade');
         });
     }
 
