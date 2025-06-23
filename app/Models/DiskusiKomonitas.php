@@ -17,6 +17,11 @@ class DiskusiKomonitas extends Model
         'pesan',
         'users_id',
         'komonitas_id',
+        'is_deleted',
+    ];
+
+    protected $casts = [
+        'is_deleted' => 'boolean',
     ];
 
     // Relasi: Diskusi dimiliki oleh satu user

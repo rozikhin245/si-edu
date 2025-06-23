@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('komonitas_id');
             $table->unsignedBigInteger('users_id');
 
-            $table->foreign('komonitas_id')->references('id')->on('komonitas');
-            $table->foreign('users_id')->references('id')->on('users');
+            $table->foreign('komonitas_id')->references('id')->on('komonitas')->onDelete('cascade');
+            $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

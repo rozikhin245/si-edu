@@ -15,15 +15,15 @@ class GrupMataPelajaranController extends Controller
     public function index($komonitas_id)
     {
         $grupMataPelajaran = GrupMatapelajaran::with(['komonitas'])
-        ->where('komonitas_id', $komonitas_id)
-        ->get();
+            ->where('komonitas_id', $komonitas_id)
+            ->get();
 
 
-    return response()->json([
-        'status' => true,
-        'message' => 'grup mata pelajaran ditemukan',
-        'data' => $grupMataPelajaran
-    ], 200);
+        return response()->json([
+            'status' => true,
+            'message' => 'grup mata pelajaran ditemukan',
+            'data' => $grupMataPelajaran
+        ], 200);
     }
 
     /**
@@ -40,7 +40,7 @@ class GrupMataPelajaranController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'message' => 'gagal membuat grup',
@@ -48,10 +48,10 @@ class GrupMataPelajaranController extends Controller
             ]);
         }
 
-        $grupMatkul ->nama_grup = $request->nama_grup;
-        $grupMatkul ->komonitas_id = $request->komonitas_id;
+        $grupMatkul->nama_grup = $request->nama_grup;
+        $grupMatkul->komonitas_id = $request->komonitas_id;
 
-        $grupMatkul ->save();
+        $grupMatkul->save();
 
         return response()->json([
             'status' => true,
@@ -66,13 +66,13 @@ class GrupMataPelajaranController extends Controller
     public function show($komonitas, $grup_id)
     {
         $grup = GrupMatapelajaran::findOrFail($grup_id);
-        if($grup) {
+        if ($grup) {
             return response()->json([
                 'status' => true,
                 'message' => 'grup ditemukan',
                 'data' => $grup
-            ],200);
-        } else{
+            ], 200);
+        } else {
             return response()->json([
                 'status' => true,
                 'message' => 'Data tidak ditemukan',
@@ -87,7 +87,7 @@ class GrupMataPelajaranController extends Controller
     {
         $grup = GrupMatapelajaran::findOrFail($grup_id);
 
-        if(empty($grup )) {
+        if (empty($grup)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Grup tidak ditemukan',
@@ -102,7 +102,7 @@ class GrupMataPelajaranController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'message' => 'gagal mengupdate grup',
@@ -110,10 +110,10 @@ class GrupMataPelajaranController extends Controller
             ]);
         }
 
-        $grup ->nama_grup = $request->nama_grup;
-        $grup ->komonitas_id = $request->komonitas_id;
+        $grup->nama_grup = $request->nama_grup;
+        $grup->komonitas_id = $request->komonitas_id;
 
-        $grup ->save();
+        $grup->save();
 
         return response()->json([
             'status' => true,
@@ -129,7 +129,7 @@ class GrupMataPelajaranController extends Controller
     {
         $grup = GrupMatapelajaran::findOrFail($grup_id);
 
-        if(empty($grup)) {
+        if (empty($grup)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Grup tidak ditemukan',

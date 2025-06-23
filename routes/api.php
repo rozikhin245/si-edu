@@ -18,6 +18,7 @@ use App\Http\Controllers\api\DiskusiKomonitasController;
 use App\Http\Controllers\Api\GrupMataPelajaranController;
 use App\Http\Controllers\api\anggotaGrupPelajaranController;
 use App\Http\Controllers\Api\DikusiGrupMataPelajaranController;
+use App\Http\Controllers\Api\TanggalAbsensiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -44,6 +45,8 @@ Route::middleware('auth:api', 'role:admin,guru,wali-murid')->group(function () {
     Route::get('profile', [UserController::class, 'profile']);
     Route::put('updateProfile', [UserController::class, 'updateProfile']);
     Route::put('change-password', [UserController::class, 'changePassword']);
+    Route::post('reset-password/users/{id}', [UserController::class, 'resetPassword']);
+
 
     // fungsi untuk menampilkan data komonitas
     // untuk admin, semua data komonitas ditampilkan, selain admin hanya ditampilkan data komonitas yng ditambahkan
@@ -58,6 +61,8 @@ Route::middleware('auth:api', 'role:admin,guru,wali-murid')->group(function () {
     Route::get('komonitas/{komunitas}/diskusiKomonitas', [DiskusiKomonitasController::class, 'index']);
     Route::post('komonitas/{komunitas}/diskusiKomonitas', [DiskusiKomonitasController::class, 'store']);
     Route::delete('komonitas/{komunitas}/diskusiKomonitas/{diskusikomonitas}', [DiskusiKomonitasController::class, 'destroy']);
+    Route::delete('komonitas/{komunitas}/diskusiKomonitas/{diskusikomonitas}/hapus', [DiskusiKomonitasController::class, 'deleteForAll']);
+
 
     // fungsi untuk menampilkan grup mata pelajaran
     Route::get('komonitas/{komunitas}/GrupMataPelajaran', [GrupMataPelajaranController::class, 'index']);
@@ -67,6 +72,7 @@ Route::middleware('auth:api', 'role:admin,guru,wali-murid')->group(function () {
     Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/diskusipelajaran', [DikusiGrupMataPelajaranController::class, 'index']);
     Route::post('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/diskusipelajaran', [DikusiGrupMataPelajaranController::class, 'store']);
     Route::delete('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/diskusipelajaran/{diskusi}', [DikusiGrupMataPelajaranController::class, 'destroy']);
+    Route::delete('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/diskusipelajaran/{diskusi}/hapus', [DikusiGrupMataPelajaranController::class, 'deleteForAll']);
 
     // fungsi untuk menampilkan anggota grup
     Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/anggotagrup', [anggotaGrupPelajaranController::class, 'index']);
@@ -78,6 +84,7 @@ Route::middleware('auth:api', 'role:admin,guru,wali-murid')->group(function () {
     // fungsi untuk menampilkan nilai
     Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/nilai', [nilaiController::class, 'index']);
     Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/nilai/{nilaiid}', [nilaiController::class, 'show']);
+    Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/nilaisiswa', [NilaiController::class, 'getByLoggedInUser']);
 
     // fungsi untuk fitur komentar tugas
     Route::get('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/komentar', [komentarTugasController::class, 'index']);
@@ -89,11 +96,18 @@ Route::middleware('auth:api', 'role:admin,guru,wali-murid')->group(function () {
     Route::get('pengumuman/{id}', [pengumumanController::class, 'show']);
 
     // fungsi untuk menampilkan data siswa
+    Route::get('siswa/me', [SiswaController::class, 'informasiSiswa']);
+
     Route::get('siswa', [siswaController::class, 'index']);
     Route::get('siswa/{id}', [siswaController::class, 'show']);
 
     // fungsi untuk menampilkan absensi
-    Route::get('absensi', [absensiController::class, 'index']);
+    Route::get('komonitas/{komunitas}/tanggal-absensi/{tanggalId}/absensi', [AbsensiController::class, 'index']);
+    Route::get('komonitas/{komunitas}/tanggal-absensi/{tanggalId}/absensi/{absensi}', [AbsensiController::class, 'show']);
+
+    // fungsi untuk menampilkan tanggal absensi
+    Route::get('komonitas/{komunitas}/tanggal-absensi', [TanggalAbsensiController::class, 'index']);
+    Route::get('komonitas/{komunitas}/tanggal-absensi/{tanggalId}', [TanggalAbsensiController::class, 'show']);
 });
 
 
@@ -110,20 +124,21 @@ Route::middleware('auth:api', 'role:admin,guru')->group(function () {
     Route::put('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/nilai/{nilaiid}', [nilaiController::class, 'update']);
     Route::delete('komonitas/{komunitas}/GrupMataPelajaran/{grup_id}/tugas/{tugas}/nilai/{nilaiid}', [nilaiController::class, 'destroy']);
 
-    // fungsi untuk membuat, mengupdate, dan menghapus absensi
-    Route::Resource('absensi', absensiController::class);
-
     // fungsi untuk menampilkan data wali murid yang belum tersambung dengan siswa
     Route::get('/available-wali-murid', [UserController::class, 'getAvailableWaliMurid']);
 
     // mengambil daftar siswa yang userIDNYA terdaftar di komonitas
     Route::get('/siswa/by-komonitas/{komonitas_id}', [nilaiController::class, 'siswaByKomonitas']);
 
-    Route::get('pengumuman', [pengumumanController::class, 'index']);
-    Route::get('pengumuman/{id}', [pengumumanController::class, 'show']);
+    // fungsi untuk membuat, mengupdate, dan menghapus tanggal absensi
+    Route::post('komonitas/{komunitas}/tanggal-absensi', [TanggalAbsensiController::class, 'store']);
+    Route::delete('komonitas/{komunitas}/tanggal-absensi/{tanggalId}', [TanggalAbsensiController::class, 'destroy']);
 
-    Route::get('pengumuman', [pengumumanController::class, 'index']);
-    Route::get('pengumuman/{id}', [pengumumanController::class, 'show']);
+    // fungsi untuk membuat, mengupdate, dan menghapus absensi
+    Route::post('komonitas/{komunitas}/tanggal-absensi/{tanggalId}/absensi', [AbsensiController::class, 'store']);
+    Route::put('komonitas/{komunitas}/tanggal-absensi/{tanggalId}/absensi/{absensi}', [AbsensiController::class, 'update']);
+    Route::patch('komonitas/{komunitas}/tanggal-absensi/{tanggalId}/absensi/{absensi}', [AbsensiController::class, 'update']);
+    Route::delete('komonitas/{komunitas}/tanggal-absensi/{tanggalId}/absensi/{absensi}', [AbsensiController::class, 'destroy']);
 });
 
 
@@ -151,7 +166,7 @@ Route::middleware('auth:api', 'role:admin')->group(function () {
     Route::post('pengumuman', [pengumumanController::class, 'store']);
     Route::put('pengumuman/{id}', [pengumumanController::class, 'update']);
     Route::delete('pengumuman/{id}', [pengumumanController::class, 'destroy']);
-    
+
     // fungsi untuk mengelola siswa
     Route::Resource('siswa', siswaController::class);
 

@@ -36,7 +36,7 @@ class komonitasController extends Controller
             $komonitas = Komonitas::whereHas('anggotaKomonitas', function ($q) use ($user) {
                 $q->where('users_id', $user->id);
             })
-                ->orderBy('nama_komonitas', 'asc')
+                ->orderBy('created_at', 'desc')
                 ->get();
         }
 

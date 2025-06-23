@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grup_matapelajaran', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_grup', 255);
-            $table->unsignedBigInteger('komonitas_id');
-
-            $table->foreign('komonitas_id')->references('id')->on('komonitas')->onDelete('cascade');
+        Schema::table('diskusi_komonitas', function (Blueprint $table) {
+            $table->boolean('is_deleted')->default(false)->after('pesan');
         });
+
     }
 
     /**
@@ -25,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grup_matapelajaran');
+        Schema::table('diskusi_komonitas', function (Blueprint $table) {
+            $table->dropColumn('is_deleted');
+        });
     }
 };

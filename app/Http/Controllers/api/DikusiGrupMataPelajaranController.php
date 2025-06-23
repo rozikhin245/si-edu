@@ -95,4 +95,19 @@ class DikusiGrupMataPelajaranController extends Controller
         ]);
     }
 
+    public function deleteForAll($komunitas, $grup_id, $diskusi)
+    {
+        $message = DiskusiPelajaran::findOrFail($diskusi);
+
+        // Pastikan hanya pengirim yang bisa hapus
+        if ($message->users_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $message->is_deleted = true;
+        $message->save();
+
+        return response()->json(['message' => 'Pesan berhasil dihapus']);
+    }
+
 }

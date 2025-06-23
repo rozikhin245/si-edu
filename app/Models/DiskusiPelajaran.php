@@ -15,6 +15,11 @@ class DiskusiPelajaran extends Model
         'pesan',
         'users_id',
         'grup_mata_pelajaran_id',
+        'is_deleted',
+    ];
+
+    protected $casts = [
+        'is_deleted' => 'boolean',
     ];
 
     // Relasi ke User

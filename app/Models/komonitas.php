@@ -17,4 +17,9 @@ class komonitas extends Model
     {
         return $this->hasMany(AnggotaKomonitas::class, 'komonitas_id');
     }
+
+    public function tanggalAbsensi()
+    {
+        return $this->hasMany(TanggalAbsensi::class, 'komunitas_id');
+    }
 }

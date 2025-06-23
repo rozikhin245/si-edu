@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AnggotaKomonitas;
 use App\Models\Nilai as ModelsNilai;
 use App\Models\Siswa;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class nilaiController extends Controller
@@ -34,10 +35,11 @@ class nilaiController extends Controller
     public function store(Request $request)
     {
         $nilai = new Nilai();
+        $siswa = Siswa::find($request->siswa_id);
 
         $rules = [
             'nilai' => 'required|string',
-            'keterangan' => 'nullable|string',
+            // 'keterangan' => 'nullable|string',
             'siswa_id' => 'required|exists:siswa,id',
             'tugas_id' => 'required|exists:tugas,id',
         ];
@@ -52,10 +54,10 @@ class nilaiController extends Controller
             ]);
         }
         $nilai->nilai = $request->nilai;
-        $nilai->keterngan = $request->keterngan;
+        // $nilai->keterngan = $request->keterngan;
         $nilai->siswa_id = $request->siswa_id;
         $nilai->tugas_id = $request->tugas_id;
-        // $nilai->users_id = $request->users_id;
+        $nilai->users_id = $siswa->users_id;
 
         $nilai->save();
 
@@ -71,7 +73,9 @@ class nilaiController extends Controller
      */
     public function show($komunitas, $grup_id, $tugasid, $nilaiid)
     {
-        $nilai = Nilai::findOrFail($nilaiid);
+        $nilai = Nilai::where('id', $nilaiid)
+            ->where('tugas_id', $tugasid)
+            ->firstOrFail();
 
         return response()->json([
             'status' => true,
@@ -80,16 +84,18 @@ class nilaiController extends Controller
         ]);
     }
 
+
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $komunitas, $grup_id, $tugas, $nilaiid)
     {
         $nilai = Nilai::findOrFail($nilaiid);
+        $siswa = Siswa::find($request->siswa_id);
 
         $rules = [
             'nilai' => 'required|string',
-            'keterangan' => 'nullable|string',
+            // 'keterangan' => 'nullable|string',
             'siswa_id' => 'required|exists:siswa,id',
             'tugas_id' => 'required|exists:tugas,id',
         ];
@@ -104,10 +110,9 @@ class nilaiController extends Controller
             ]);
         }
         $nilai->nilai = $request->nilai;
-        $nilai->keterngan = $request->keterngan;
         $nilai->siswa_id = $request->siswa_id;
         $nilai->tugas_id = $request->tugas_id;
-        $nilai->users_id = $request->users_id;
+        $nilai->users_id = $siswa->users_id;
 
         $nilai->save();
 
@@ -150,5 +155,20 @@ class nilaiController extends Controller
             'message' => 'Data siswa dalam komunitas ditemukan',
             'data' => $siswa
         ], 200);
+    }
+
+    public function getByLoggedInUser($komunitas, $grup_id, $tugas_id)
+    {
+        $user = Auth::user();
+
+        $nilai = Nilai::where('users_id', $user->id)
+            ->where('tugas_id', $tugas_id)
+            ->first();
+
+        return response()->json([
+            'status' => true,
+            'data' => $nilai,
+            'message' => $nilai ? 'Nilai ditemukan' : 'Belum ada nilai'
+        ]);
     }
 }

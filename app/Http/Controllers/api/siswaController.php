@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class siswaController extends Controller
@@ -33,7 +34,7 @@ class siswaController extends Controller
 
         $rules = [
             'nama' => 'required|string',
-            'jenis_kelamin' => 'required|in:laki-laki,Perempuan',
+            'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string',
             'angkatan' => 'required|integer',
@@ -90,6 +91,25 @@ class siswaController extends Controller
         };
     }
 
+    public function informasiSiswa(){
+        $userId = Auth::id(); // Ambil ID user yang sedang login
+
+        $siswa = Siswa::where('users_id', $userId)->first();
+
+        if ($siswa) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Data siswa ditemukan',
+                'data' => $siswa
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data siswa tidak ditemukan',
+            ], 404);
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      */
@@ -106,7 +126,7 @@ class siswaController extends Controller
 
         $rules = [
             'nama' => 'required|string',
-            'jenis_kelamin' => 'required|in:laki-laki,Perempuan',
+            'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string',
             'angkatan' => 'required|integer',

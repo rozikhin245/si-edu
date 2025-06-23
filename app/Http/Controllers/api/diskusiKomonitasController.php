@@ -41,7 +41,7 @@ class DiskusiKomonitasController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'message' => 'gagal membuat pesan',
@@ -67,7 +67,6 @@ class DiskusiKomonitasController extends Controller
      */
     public function show(string $id)
     {
-
     }
 
     /**
@@ -92,5 +91,20 @@ class DiskusiKomonitasController extends Controller
             'message' => 'diskusi berhasil dihapus',
             'data' => $diskusi
         ]);
+    }
+
+    public function deleteForAll($komunitas, $dikusikomonitasid)
+    {
+        $message = DiskusiKomonitas::findOrFail($dikusikomonitasid);
+
+        // Pastikan hanya pengirim yang bisa hapus
+        if ($message->users_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $message->is_deleted = true;
+        $message->save();
+
+        return response()->json(['message' => 'Pesan berhasil dihapus']);
     }
 }

@@ -57,7 +57,7 @@ class UserController extends Controller
 
         $rules = [
             'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed',
+            'new_password' => 'required|min:6|confirmed|different:current_password',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -69,7 +69,6 @@ class UserController extends Controller
             ], 422);
         }
 
-        // Cek apakah password lama benar
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'status' => false,
@@ -77,7 +76,6 @@ class UserController extends Controller
             ], 403);
         }
 
-        // Simpan password baru
         $user->password = Hash::make($request->new_password);
         $user->save();
 
@@ -87,16 +85,41 @@ class UserController extends Controller
         ]);
     }
 
-    public function getAvailableWaliMurid()
+
+    public function getAvailableWaliMurid($currentUserId = null)
     {
         $availableUsers = User::where('role', 'wali-murid')
-            ->whereDoesntHave('siswa')
-            ->get(['id', 'name', 'email']); // Pilih field yang diperlukan
+            ->where(function ($query) use ($currentUserId) {
+                $query->whereDoesntHave('siswa');
+
+                // Include user yang sedang dipakai oleh siswa saat ini
+                if ($currentUserId) {
+                    $query->orWhere('id', $currentUserId);
+                }
+            })
+            ->get(['id', 'name', 'email']);
 
         return response()->json([
             'status' => true,
-            'message' => 'diskusi pelajaran berhasil dihapus',
+            'message' => 'Daftar wali murid tersedia',
             'data' => $availableUsers
         ]);
+    }
+
+    public function resetPassword(Request $request, $id)
+    {
+        $request->validate([
+            'reset_key' => 'required|string',
+        ]);
+
+        if ($request->reset_key !== env('RESET_PASSWORD_KEY')) {
+            return response()->json(['message' => 'Kode reset salah.'], 403);
+        }
+
+        $user = User::findOrFail($id);
+        $user->password = Hash::make('default123'); // password default
+        $user->save();
+
+        return response()->json(['message' => 'Password berhasil direset ke default.']);
     }
 }

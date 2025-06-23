@@ -10,7 +10,7 @@ class allUser extends Controller
 {
     public function index() {
         $allUser = User::select('id', 'name', 'email', 'role')->get();
-
+        
         return response()->json([
             'status' => true,
             'message' => 'data user ditemukan',

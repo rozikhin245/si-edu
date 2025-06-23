@@ -12,10 +12,9 @@ class absensiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($komunitas_id, $absensiId)
     {
-        $absensi = Absensi::with(['siswa'])
-            ->get();
+        $absensi = Absensi::with('siswa')->where('tanggal_id', $absensiId)->orderBy('created_at', 'asc')->get();
 
         return response()->json([
             'status' => true,
@@ -32,10 +31,9 @@ class absensiController extends Controller
         $absensi  = new Absensi();
 
         $rules = [
-            'tanggal' => 'required|date',
             'status' => 'required|in:hadir,izin,sakit,alpa',
-            'keterangan' => 'required|string',
             'siswa_id' => 'required|exists:siswa,id',
+            'tanggal_id' => 'required|exists:tanggal_absensi,id',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -43,12 +41,12 @@ class absensiController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal membuat data siswa',
+                'message' => 'Gagal membuat data absensi',
                 'data' => $validator->errors()
             ], 400);
         }
 
-        $absensi->tanggal = $request->tanggal;
+        $absensi->tanggal_id = $request->tanggal_id;
         $absensi->status = $request->status;
         $absensi->keterangan = $request->keterangan;
         $absensi->siswa_id = $request->siswa_id;
@@ -73,56 +71,56 @@ class absensiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        $absensi  = Absensi::find($id);
+    // public function update(Request $request, string $id)
+    // {
+    //     $absensi  = Absensi::find($id);
 
-        if(empty($absensi )) {
-            return response()->json([
-                'status' => false,
-                'message' => 'absensi tidak ditemukan',
-            ]);
-        }
+    //     if(empty($absensi )) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'absensi tidak ditemukan',
+    //         ]);
+    //     }
 
-        $rules = [
-            'tanggal' => 'required|date',
-            'status' => 'required|in:hadir,izin,sakit,alpa',
-            'keterangan' => 'required|string',
-            'siswa_id' => 'required|exists:siswa,id',
-        ];
+    //     $rules = [
+    //         'tanggal' => 'required|date',
+    //         'status' => 'required|in:hadir,izin,sakit,alpa',
+    //         'keterangan' => 'required|string',
+    //         'siswa_id' => 'required|exists:siswa,id',
+    //     ];
 
-        $validator = Validator::make($request->all(), $rules);
+    //     $validator = Validator::make($request->all(), $rules);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal membuat absensi',
-                'data' => $validator->errors()
-            ], 400);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Gagal membuat absensi',
+    //             'data' => $validator->errors()
+    //         ], 400);
+    //     }
 
-        $absensi->tanggal = $request->tanggal;
-        $absensi->status = $request->status;
-        $absensi->keterangan = $request->keterangan;
-        $absensi->siswa_id = $request->siswa_id;
+    //     $absensi->tanggal = $request->tanggal;
+    //     $absensi->status = $request->status;
+    //     $absensi->keterangan = $request->keterangan;
+    //     $absensi->siswa_id = $request->siswa_id;
 
-        $absensi->save();
+    //     $absensi->save();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'absensi berhasil diupdate',
-            'data' => $absensi
-        ], 201);
-    }
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'absensi berhasil diupdate',
+    //         'data' => $absensi
+    //     ], 201);
+    // }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        $absensi  = Absensi::find($id);
 
-        if(empty($absensi )) {
+    public function destroy($komunitas, $tanggalId, Absensi $absensi)
+    {
+
+        if (empty($absensi)) {
             return response()->json([
                 'status' => false,
                 'message' => 'absensi tidak ditemukan',
@@ -135,6 +133,6 @@ class absensiController extends Controller
             'status' => true,
             'message' => 'absensi berhasil dihapus',
             'data' => $absensi
-        ], 201);
+        ], 200);
     }
 }
